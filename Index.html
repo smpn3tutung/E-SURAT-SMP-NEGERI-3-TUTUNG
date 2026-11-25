@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>E-SURAT | SMP NEGERI 3 TUTUNG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <?!= include('Styles'); ?>
+</head>
+<body>
+
+<!-- ==================== HALAMAN LOGIN ==================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <!-- Logo SMP Negeri 3 Tutung (Inline SVG Emblem sesuai Logo Sekolah + Support Custom Image URL) -->
+      <div id="loginLogoContainer" class="mb-2">
+        <svg width="76" height="86" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 10 L90 10 L90 65 C90 90 50 108 50 108 C50 108 10 90 10 65 Z" fill="#FFFFFF" stroke="#0B1F3A" stroke-width="4"/>
+          <path d="M50 10 L90 10 L90 65 C90 90 50 108 50 108 Z" fill="#0B389B"/>
+          <polygon points="50,24 53,33 62,33 55,38 57,47 50,42 43,47 45,38 38,33 47,33" fill="#FACC15" stroke="#854D0E" stroke-width="1"/>
+          <circle cx="50" cy="64" r="16" fill="#FFFFFF" stroke="#0B389B" stroke-width="2"/>
+          <text x="50" y="19" font-size="8" font-weight="bold" text-anchor="middle" fill="#0B1F3A">SMP NEGERI 3</text>
+          <text x="50" y="96" font-size="8" font-weight="bold" text-anchor="middle" fill="#D4AF37">TUTUNG</text>
+        </svg>
+      </div>
+      <h5 class="fw-extrabold mb-1" style="color: var(--navy-primary);">E-SURAT SMP NEGERI 3 TUTUNG</h5>
+      <p class="text-muted small mb-0">Sistem Informasi Administrasi Persuratan Digital<br>Kec. Linggang Bigung, Kab. Kutai Barat</p>
+    </div>
+
+    <form id="formLogin" onsubmit="handleLogin(event)">
+      <div class="mb-3">
+        <label class="form-label fw-semibold small">Username</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light"><i class="bi bi-person-fill text-primary"></i></span>
+          <input type="text" id="loginUsername" class="form-control" placeholder="Masukkan username" required>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold small">Password</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light"><i class="bi bi-lock-fill text-primary"></i></span>
+          <input type="password" id="loginPassword" class="form-control" placeholder="Masukkan password" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-navy w-100 py-2 mt-2">
+        <i class="bi bi-box-arrow-in-right me-1"></i> MASUK KE SISTEM
+      </button>
+    </form>
+
+    <div class="mt-3 p-2 rounded bg-light border small text-muted">
+      <strong>Akun Demo Awal:</strong><br>
+      Admin: <code>admin / admin123</code> | Kepsek: <code>kepsek / kepsek123</code><br>
+      TU: <code>tu / tu123</code> | Guru: <code>guru / guru123</code>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APLIKASI UTAMA ==================== -->
+<div id="appContainer" class="d-none">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebarMenu">
+    <div class="sidebar-brand d-flex align-items-center gap-2">
+      <img id="sidebarLogoImg" src="" alt="Logo" class="d-none rounded" style="width:42px;height:48px;object-fit:contain;">
+      <div id="sidebarLogoSvg">
+        <svg width="38" height="44" viewBox="0 0 100 115">
+          <path d="M10 10 L90 10 L90 65 C90 90 50 108 50 108 C50 108 10 90 10 65 Z" fill="#FFFFFF" stroke="#D4AF37" stroke-width="4"/>
+          <path d="M50 10 L90 10 L90 65 C90 90 50 108 50 108 Z" fill="#1D4ED8"/>
+          <polygon points="50,24 53,33 62,33 55,38 57,47 50,42 43,47 45,38 38,33 47,33" fill="#FACC15"/>
+        </svg>
+      </div>
+      <div>
+        <div class="fw-bold text-warning" style="font-size: 0.92rem; line-height:1.1;">E-SURAT</div>
+        <div class="text-white-50" style="font-size: 0.72rem;">SMP NEGERI 3 TUTUNG</div>
+      </div>
+    </div>
+
+    <div class="sidebar-heading">Menu Utama</div>
+    <nav class="nav flex-column">
+      <a class="nav-link active" href="#" onclick="switchView('dashboard', this)"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a class="nav-link role-tu" href="#" onclick="switchView('suratMasuk', this)"><i class="bi bi-envelope-arrow-down"></i> Surat Masuk</a>
+      <a class="nav-link role-tu" href="#" onclick="switchView('suratKeluar', this)"><i class="bi bi-envelope-arrow-up"></i> Surat Keluar</a>
+      <a class="nav-link role-tu" href="#" onclick="switchView('generatorSurat', this)"><i class="bi bi-magic"></i> Generator 20 Surat</a>
+      <a class="nav-link role-kepsek" href="#" onclick="switchView('disposisi', this)"><i class="bi bi-diagram-3"></i> Disposisi Pimpinan</a>
+      <a class="nav-link" href="#" onclick="switchView('arsipDigital', this)"><i class="bi bi-archive"></i> Arsip Digital</a>
+
+      <div class="sidebar-heading">Administrasi & Laporan</div>
+      <a class="nav-link role-tu" href="#" onclick="switchView('laporan', this)"><i class="bi bi-file-earmark-spreadsheet"></i> Laporan & Register</a>
+      <a class="nav-link role-admin" href="#" onclick="switchView('dataMaster', this)"><i class="bi bi-database-gear"></i> Data Master & Nomor</a>
+      <a class="nav-link role-admin" href="#" onclick="switchView('keamanan', this)"><i class="bi bi-shield-lock"></i> Pengguna, Backup & Log</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-wrapper">
+    <!-- TOPBAR -->
+    <header class="topbar d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary d-lg-none" onclick="document.getElementById('sidebarMenu').classList.toggle('show')">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <h6 class="mb-0 fw-bold" style="color: var(--navy-primary);">PEMERINTAH KABUPATEN KUTAI BARAT - DINAS PENDIDIKAN DAN KEBUDAYAAN</h6>
+          <small class="text-muted">SMP NEGERI 3 TUTUNG | NPSN: 30400668 | NSS: 20.1.16.09.15.04</small>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="text-end d-none d-md-block">
+          <div class="fw-bold small" id="topbarUserName">-</div>
+          <span class="badge badge-navy" id="topbarUserRole">-</span>
+        </div>
+        <button class="btn btn-sm btn-outline-danger" onclick="logoutUser()" title="Keluar">
+          <i class="bi bi-power"></i> Keluar
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT VIEWS -->
+    <main class="p-3 p-md-4">
+
+      <!-- ==================== 1. VIEW DASHBOARD ==================== -->
+      <section id="view-dashboard" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0" style="color: var(--navy-primary);"><i class="bi bi-grid-1x2-fill text-warning me-2"></i>Dashboard Persuratan</h4>
+          <button class="btn btn-sm btn-navy" onclick="loadDashboard()"><i class="bi bi-arrow-clockwise me-1"></i> Muat Ulang</button>
+        </div>
+
+        <!-- 6 Kartu KPI -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card">
+              <div class="small text-muted fw-semibold">Surat Masuk</div>
+              <div class="fs-3 fw-extrabold text-primary" id="kpiMasuk">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card gold">
+              <div class="small text-muted fw-semibold">Surat Keluar</div>
+              <div class="fs-3 fw-extrabold" style="color:#B89422;" id="kpiKeluar">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card">
+              <div class="small text-muted fw-semibold">Total Dibuat</div>
+              <div class="fs-3 fw-extrabold text-dark" id="kpiDibuat">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card danger">
+              <div class="small text-muted fw-semibold">Tunggu Disposisi</div>
+              <div class="fs-3 fw-extrabold text-danger" id="kpiDisposisi">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card gold">
+              <div class="small text-muted fw-semibold">Tunggu TTD</div>
+              <div class="fs-3 fw-extrabold text-warning" id="kpiTTD">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card success">
+              <div class="small text-muted fw-semibold">Total Arsip</div>
+              <div class="fs-3 fw-extrabold text-success" id="kpiArsip">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grafik & Notifikasi -->
+        <div class="row g-3 mb-4">
+          <div class="col-lg-8">
+            <div class="card card-custom p-3 h-100">
+              <h6 class="fw-bold mb-3">Grafik Statistik Surat Bulanan (Masuk vs Keluar)</h6>
+              <canvas id="chartBulanan" height="115"></canvas>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card card-custom p-3 h-100">
+              <h6 class="fw-bold mb-3">Perbandingan Volume Surat</h6>
+              <canvas id="chartPerbandingan" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card card-custom p-3">
+              <h6 class="fw-bold text-danger mb-3"><i class="bi bi-bell-fill me-1"></i> Notifikasi Tindak Lanjut Segera</h6>
+              <div id="listNotifikasi" class="small text-muted">Memuat notifikasi...</div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card card-custom p-3">
+              <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-1"></i> Aktivitas Administrasi Terbaru</h6>
+              <div id="listAktivitas" class="small">Memuat aktivitas...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 2. VIEW SURAT MASUK ==================== -->
+      <section id="view-suratMasuk" class="app-view d-none">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+          <h4 class="fw-bold mb-0" style="color: var(--navy-primary);">Manajemen Surat Masuk</h4>
+          <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#modalSuratMasuk">
+            <i class="bi bi-plus-circle me-1"></i> Catat Surat Masuk
+          </button>
+        </div>
+
+        <div class="card card-custom p-3">
+          <div class="row g-2 mb-3">
+            <div class="col-md-5">
+              <input type="text" id="filterSMText" class="form-control form-control-sm" placeholder="Cari nomor surat, asal instansi, perihal..." onkeyup="renderTableSM()">
+            </div>
+            <div class="col-md-3">
+              <select id="filterSMUrgensi" class="form-select form-select-sm" onchange="renderTableSM()">
+                <option value="">Semua Urgensi</option>
+                <option value="Biasa">Biasa</option>
+                <option value="Penting">Penting</option>
+                <option value="Segera">Segera</option>
+                <option value="Sangat Segera">Sangat Segera</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <select id="filterSMStatus" class="form-select form-select-sm" onchange="renderTableSM()">
+                <option value="">Semua Status Disposisi</option>
+                <option value="Menunggu Disposisi">Menunggu Disposisi</option>
+                <option value="Sudah Didisposisi">Sudah Didisposisi</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+              <thead class="table-dark">
+                <tr>
+                  <th>No. Agenda</th>
+                  <th>No. & Tgl Surat</th>
+                  <th>Asal Instansi</th>
+                  <th>Perihal</th>
+                  <th>Urgensi</th>
+                  <th>Disposisi</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbodySuratMasuk"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 3. VIEW SURAT KELUAR ==================== -->
+      <section id="view-suratKeluar" class="app-view d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0" style="color: var(--navy-primary);">Daftar Surat Keluar</h4>
+          <button class="btn btn-gold" onclick="switchView('generatorSurat')">
+            <i class="bi bi-plus-lg me-1"></i> Buat Surat Keluar Baru
+          </button>
+        </div>
+
+        <div class="card card-custom p-3">
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <input type="text" id="filterSKText" class="form-control form-control-sm" placeholder="Cari nomor surat, tujuan, perihal..." onkeyup="renderTableSK()">
+            </div>
+            <div class="col-md-3">
+              <select id="filterSKStatus" class="form-select form-select-sm" onchange="renderTableSK()">
+                <option value="">Semua Status</option>
+                <option value="Konsep">Konsep</option>
+                <option value="Menunggu Persetujuan">Menunggu Persetujuan</option>
+                <option value="Disetujui">Disetujui</option>
+                <option value="Ditandatangani">Ditandatangani</option>
+                <option value="Terkirim">Terkirim</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+              <thead class="table-dark">
+                <tr>
+                  <th>Nomor Surat</th>
+                  <th>Tanggal</th>
+                  <th>Jenis Surat</th>
+                  <th>Tujuan & Perihal</th>
+                  <th>Status</th>
+                  <th>Dokumen (Drive)</th>
+                </tr>
+              </thead>
+              <tbody id="tbodySuratKeluar"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 4. VIEW GENERATOR 20 SURAT OTOMATIS ==================== -->
+      <section id="view-generatorSurat" class="app-view d-none">
+        <h4 class="fw-bold mb-3" style="color: var(--navy-primary);"><i class="bi bi-file-earmark-richtext text-warning me-2"></i>Generator Surat Otomatis (20 Template Resmi)</h4>
+
+        <div class="row g-3">
+          <!-- Panel Form Isian -->
+          <div class="col-lg-5">
+            <div class="card card-custom p-3">
+              <form id="formGeneratorSurat" onsubmit="submitSuratKeluar(event)">
+                <div class="mb-2">
+                  <label class="form-label fw-bold small">1. Pilih Jenis Surat (20 Template)</label>
+                  <select id="genJenisSurat" class="form-select form-select-sm border-primary" onchange="onSelectJenisSurat()" required></select>
+                </div>
+
+                <div class="row g-2 mb-2">
+                  <div class="col-md-5">
+                    <label class="form-label small fw-semibold">Kode Klasifikasi</label>
+                    <input type="text" id="genKodeKlasifikasi" class="form-control form-control-sm" value="422.421.3" onchange="refreshNomorPreview()">
+                  </div>
+                  <div class="col-md-7">
+                    <label class="form-label small fw-semibold">Nomor Surat Otomatis</label>
+                    <input type="text" id="genNoSuratPreview" class="form-control form-control-sm bg-light fw-bold text-primary" readonly>
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-2">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Tanggal Surat</label>
+                    <input type="date" id="genTglSurat" class="form-control form-control-sm" onchange="refreshNomorPreview(); updateLivePreview();" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Lampiran</label>
+                    <input type="text" id="genLampiran" class="form-control form-control-sm" value="-" onkeyup="updateLivePreview()">
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Tujuan Surat</label>
+                  <input type="text" id="genTujuan" class="form-control form-control-sm" placeholder="Contoh: Kepala Dinas Pendidikan Kab. Kutai Barat / Orang Tua Siswa" onkeyup="updateLivePreview()" required>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Perihal Surat</label>
+                  <input type="text" id="genPerihal" class="form-control form-control-sm" onkeyup="updateLivePreview()" required>
+                </div>
+
+                <!-- Dynamic Fields Khusus Template -->
+                <div id="dynamicFieldsContainer" class="p-2 mb-2 rounded bg-light border"></div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Edit Isi Naskah Surat</label>
+                  <textarea id="genIsiSurat" class="form-control form-control-sm" rows="8" onkeyup="updateLivePreview()" required></textarea>
+                </div>
+
+                <div class="row g-2 mb-2">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Penandatangan</label>
+                    <input type="text" id="genPenandatangan" class="form-control form-control-sm" value="Ahmad Adik, S.Pd., Gr." onkeyup="updateLivePreview()">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Status Penerbitan</label>
+                    <select id="genStatus" class="form-select form-select-sm">
+                      <option value="Konsep">Konsep</option>
+                      <option value="Menunggu Persetujuan">Menunggu Persetujuan</option>
+                      <option value="Disetujui">Disetujui</option>
+                      <option value="Ditandatangani">Ditandatangani</option>
+                      <option value="Terkirim">Terkirim</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                  <input class="form-check-input" type="checkbox" id="genTampilkanTTD" checked onchange="updateLivePreview()">
+                  <label class="form-check-label small" for="genTampilkanTTD">Sertakan Tanda Tangan & Stempel Sekolah pada Pratinjau</label>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <button type="submit" class="btn btn-navy">
+                    <i class="bi bi-cloud-check me-1"></i> Terbitkan, Simpan ke Drive & Buat PDF/DOCX
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Cetak Langsung Pratinjau
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Panel Live Preview Kertas Resmi -->
+          <div class="col-lg-7">
+            <div class="paper-preview" id="printableArea">
+              <div class="kop-border d-flex align-items-center gap-3">
+                <div id="kopLogoBox">
+                  <svg width="64" height="74" viewBox="0 0 100 115">
+                    <path d="M10 10 L90 10 L90 65 C90 90 50 108 50 108 C50 108 10 90 10 65 Z" fill="#FFFFFF" stroke="#000" stroke-width="3"/>
+                    <path d="M50 10 L90 10 L90 65 C90 90 50 108 50 108 Z" fill="#0B389B"/>
+                    <polygon points="50,24 53,33 62,33 55,38 57,47 50,42 43,47 45,38 38,33 47,33" fill="#FACC15" stroke="#000" stroke-width="1"/>
+                    <text x="50" y="19" font-size="8" font-weight="bold" text-anchor="middle" fill="#000">SMP NEGERI 3</text>
+                    <text x="50" y="96" font-size="8" font-weight="bold" text-anchor="middle" fill="#D4AF37">TUTUNG</text>
+                  </svg>
+                </div>
+                <div class="text-center flex-grow-1" style="line-height: 1.2;">
+                  <div style="font-size: 13pt; font-weight: bold;">PEMERINTAH KABUPATEN KUTAI BARAT</div>
+                  <div style="font-size: 13pt; font-weight: bold;">DINAS PENDIDIKAN DAN KEBUDAYAAN</div>
+                  <div style="font-size: 15pt; font-weight: bold;">SMP NEGERI 3 TUTUNG</div>
+                  <div style="font-size: 9.5pt;">NSS. 20.1.16.09.15.04 / NIS. 200560 / NPSN. 30400668</div>
+                  <div style="font-size: 9pt; font-style: italic;">Alamat: Jln. Pospol RT. VI Tutung Kec. Linggang Bigung Kab. Kutai Barat, 75576</div>
+                </div>
+              </div>
+
+              <div id="previewHeaderBlock" class="mb-3" style="font-size: 11pt;"></div>
+              <div id="previewBodyBlock" style="font-size: 11pt; text-align: justify; white-space: pre-line; line-height: 1.5;"></div>
+
+              <div class="row mt-4" style="font-size: 11pt;">
+                <div class="col-6"></div>
+                <div class="col-6 position-relative">
+                  <div>Ditetapkan di : Tutung</div>
+                  <div>Pada tanggal : <span id="prevTglTTD">-</span></div>
+                  <div class="mt-1">Kepala Sekolah,</div>
+                  <div id="ttdStampVisual" class="my-2" style="height: 62px;">
+                    <span class="badge border border-primary text-primary" style="font-family:sans-serif;font-size:10px;">
+                      [STEMPEL & TTD DIGITAL TERVERIFIKASI]
+                    </span>
+                  </div>
+                  <div class="fw-bold text-decoration-underline" id="prevNamaKepsek">Ahmad Adik, S.Pd., Gr.</div>
+                  <div>NIP. 19790710 202221 1 006</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 5. VIEW DISPOSISI ==================== -->
+      <section id="view-disposisi" class="app-view d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0" style="color: var(--navy-primary);">Lembar & Riwayat Disposisi</h4>
+          <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#modalDisposisi">
+            <i class="bi bi-send-check me-1"></i> Buat Disposisi Baru
+          </button>
+        </div>
+
+        <div class="card card-custom p-3">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+              <thead class="table-dark">
+                <tr>
+                  <th>No. Agenda</th>
+                  <th>Perihal Surat</th>
+                  <th>Tujuan Disposisi</th>
+                  <th>Instruksi Kepala Sekolah</th>
+                  <th>Batas Waktu</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyDisposisi"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 6. VIEW ARSIP DIGITAL ==================== -->
+      <section id="view-arsipDigital" class="app-view d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0" style="color: var(--navy-primary);">Arsip Digital Terpadu (Google Drive)</h4>
+          <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#modalUploadArsip">
+            <i class="bi bi-cloud-upload me-1"></i> Unggah Dokumen Arsip
+          </button>
+        </div>
+
+        <div class="card card-custom p-3">
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <input type="text" id="filterArsipText" class="form-control form-control-sm" placeholder="Cari nomor dokumen, judul/perihal..." onkeyup="renderTableArsip()">
+            </div>
+            <div class="col-md-4">
+              <select id="filterArsipKelompok" class="form-select form-select-sm" onchange="renderTableArsip()">
+                <option value="">Semua Kelompok Arsip</option>
+                <option value="Surat Masuk">Arsip Surat Masuk</option>
+                <option value="Surat Keluar">Arsip Surat Keluar</option>
+                <option value="Surat Keputusan">Arsip Surat Keputusan (SK)</option>
+                <option value="Surat Tugas">Arsip Surat Tugas</option>
+                <option value="Surat Keterangan">Arsip Surat Keterangan</option>
+                <option value="Dokumen Sekolah">Arsip Dokumen Sekolah</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <input type="number" id="filterArsipTahun" class="form-control form-control-sm" placeholder="Filter Tahun (mis. 2026)" onkeyup="renderTableArsip()">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small">
+              <thead class="table-dark">
+                <tr>
+                  <th>Kelompok</th>
+                  <th>Tahun</th>
+                  <th>Nomor Dokumen</th>
+                  <th>Judul / Perihal</th>
+                  <th>Hak Akses</th>
+                  <th>Riwayat</th>
+                  <th>File</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyArsip"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 7. VIEW LAPORAN & REGISTER ==================== -->
+      <section id="view-laporan" class="app-view d-none">
+        <h4 class="fw-bold mb-3" style="color: var(--navy-primary);">Laporan & Buku Register Persuratan</h4>
+        <div class="card card-custom p-3 mb-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Jenis Laporan</label>
+              <select id="jenisLaporanSelect" class="form-select form-select-sm" onchange="generateLaporanPreview()">
+                <option value="AGENDA_MASUK">Buku Agenda Surat Masuk</option>
+                <option value="AGENDA_KELUAR">Buku Agenda Surat Keluar</option>
+                <option value="REGISTER_NOMOR">Buku Register Nomor Surat</option>
+                <option value="LAPORAN_DISPOSISI">Laporan Disposisi Kepala Sekolah</option>
+                <option value="REKAP_TAHUNAN">Rekapitulasi Surat Tahunan</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Filter Bulan (Opsional)</label>
+              <input type="month" id="filterLaporanBulan" class="form-control form-control-sm" onchange="generateLaporanPreview()">
+            </div>
+            <div class="col-md-5 d-flex gap-2">
+              <button class="btn btn-success btn-sm" onclick="exportLaporanExcel()"><i class="bi bi-file-earmark-excel me-1"></i> Ekspor Excel (.xlsx)</button>
+              <button class="btn btn-danger btn-sm" onclick="window.print()"><i class="bi bi-file-earmark-pdf me-1"></i> Cetak / Simpan PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-custom p-3" id="laporanResultContainer">
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm small" id="tabelLaporan">
+              <thead class="table-light" id="theadLaporan"></thead>
+              <tbody id="tbodyLaporan"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 8. VIEW DATA MASTER & PENOMORAN ==================== -->
+      <section id="view-dataMaster" class="app-view d-none">
+        <h4 class="fw-bold mb-3" style="color: var(--navy-primary);">Data Master & Konfigurasi Penomoran</h4>
+
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card card-custom p-3">
+              <h6 class="fw-bold text-primary mb-3"><i class="bi bi-123 me-1"></i> Konfigurasi Penomoran Otomatis</h6>
+              <form onsubmit="saveConfigNomor(event)">
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Format Nomor Surat</label>
+                  <input type="text" id="cfgFormat" class="form-control form-control-sm" value="422.421.3/{URUT}/SMPN3TUTUNG/{BULAN_ROMAWI}/{TAHUN}" required>
+                  <small class="text-muted">Variabel: <code>{KODE}</code>, <code>{URUT}</code>, <code>{BULAN_ROMAWI}</code>, <code>{TAHUN}</code></small>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-4">
+                    <label class="form-label small">Tahun Aktif</label>
+                    <input type="number" id="cfgTahun" class="form-control form-control-sm" value="2026">
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label small">Nomor Urut Terakhir</label>
+                    <input type="number" id="cfgCounter" class="form-control form-control-sm" value="0">
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label small">Reset Tahunan</label>
+                    <select id="cfgReset" class="form-select form-select-sm">
+                      <option value="YA">YA</option>
+                      <option value="TIDAK">TIDAK</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">Kunci Nomor Surat yang Sudah Diterbitkan</label>
+                  <select id="cfgLock" class="form-select form-select-sm">
+                    <option value="YA">YA (Wajib Otorisasi Admin)</option>
+                    <option value="TIDAK">TIDAK</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-navy btn-sm">Simpan Pengaturan Nomor</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card card-custom p-3">
+              <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building me-1"></i> Identitas Resmi Sekolah & Kepala Sekolah</h6>
+              <form onsubmit="saveProfilSekolah(event)">
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label class="form-label small">Kepala Sekolah</label>
+                    <input type="text" id="msKepsek" class="form-control form-control-sm" value="Ahmad Adik, S.Pd., Gr.">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">NIP Kepala Sekolah</label>
+                    <input type="text" id="msNipKepsek" class="form-control form-control-sm" value="19790710 202221 1 006">
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Alamat Lengkap</label>
+                  <input type="text" id="msAlamat" class="form-control form-control-sm" value="Jln. Pospol RT. VI Tutung Kec. Linggang Bigung Kab. Kutai Barat, 75576">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">File ID Logo Sekolah di Google Drive (Opsional untuk Kop Docs)</label>
+                  <input type="text" id="msLogoId" class="form-control form-control-sm" placeholder="Tempel File ID gambar logo dari Google Drive">
+                </div>
+                <button type="submit" class="btn btn-navy btn-sm">Perbarui Identitas Sekolah</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 9. VIEW KEAMANAN, BACKUP & LOG ==================== -->
+      <section id="view-keamanan" class="app-view d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0" style="color: var(--navy-primary);">Manajemen Pengguna, Backup & Audit Log</h4>
+          <button class="btn btn-success btn-sm" onclick="triggerBackupDB()">
+            <i class="bi bi-database-up me-1"></i> Backup Database ke Google Drive Sekarang
+          </button>
+        </div>
+
+        <div class="card card-custom p-3 mb-3">
+          <h6 class="fw-bold mb-2">Daftar Pengguna & Hak Akses (RBAC)</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered small">
+              <thead class="table-dark">
+                <tr><th>ID</th><th>Username</th><th>Nama Lengkap</th><th>Jabatan</th><th>Role</th><th>Status</th><th>Login Terakhir</th></tr>
+              </thead>
+              <tbody id="tbodyUsers"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card card-custom p-3">
+          <h6 class="fw-bold mb-2">Log Aktivitas Sistem Terbaru</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped small">
+              <thead><tr><th>Waktu</th><th>User</th><th>Role</th><th>Aksi</th><th>Modul</th><th>Detail</th></tr></thead>
+              <tbody id="tbodyLogs"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ==================== MODAL TAMBAH SURAT MASUK ==================== -->
+<div class="modal fade" id="modalSuratMasuk" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content" onsubmit="submitSuratMasuk(event)">
+      <div class="modal-header bg-dark text-white">
+        <h6 class="modal-title">Catat Surat Masuk Baru</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small">
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Nomor Surat Asal</label>
+            <input type="text" id="smNoSurat" class="form-control form-control-sm" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Tanggal Surat</label>
+            <input type="date" id="smTglSurat" class="form-control form-control-sm" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Tanggal Diterima</label>
+            <input type="date" id="smTglDiterima" class="form-control form-control-sm" required>
+          </div>
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Asal Instansi / Pengirim</label>
+            <input type="text" id="smAsal" class="form-control form-control-sm" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Kategori</label>
+            <select id="smKategori" class="form-select form-select-sm">
+              <option value="Pendidikan Umum">Pendidikan Umum</option>
+              <option value="Undangan Rapat">Undangan Rapat</option>
+              <option value="Kepegawaian">Kepegawaian</option>
+              <option value="Kesiswaan">Kesiswaan</option>
+              <option value="Keuangan/BOS">Keuangan/BOS</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Tingkat Urgensi</label>
+            <select id="smUrgensi" class="form-select form-select-sm">
+              <option value="Biasa">Biasa</option>
+              <option value="Penting">Penting</option>
+              <option value="Segera">Segera</option>
+              <option value="Sangat Segera">Sangat Segera</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Perihal Surat</label>
+          <input type="text" id="smPerihal" class="form-control form-control-sm" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Ringkasan Isi Surat</label>
+          <textarea id="smRingkasan" class="form-control form-control-sm" rows="3"></textarea>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Upload Scan Surat (PDF / JPG / PNG)</label>
+          <input type="file" id="smFileScan" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-navy btn-sm">Simpan & Arsipkan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== MODAL DISPOSISI ==================== -->
+<div class="modal fade" id="modalDisposisi" tabindex="-1">
+  <div class="modal-dialog">
+    <form class="modal-content" onsubmit="submitDisposisi(event)">
+      <div class="modal-header bg-dark text-white">
+        <h6 class="modal-title">Lembar Disposisi Kepala Sekolah</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small">
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Pilih Surat Masuk</label>
+          <select id="dispSelectSM" class="form-select form-select-sm" required></select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Tujuan Disposisi (Unit / Guru / TU)</label>
+          <input type="text" id="dispTujuan" class="form-control form-control-sm" placeholder="Contoh: Wakil Kepala Sekolah / Kaur TU / Bendahara BOS" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Instruksi Kepala Sekolah</label>
+          <textarea id="dispInstruksi" class="form-control form-control-sm" rows="3" placeholder="Contoh: Tindak lanjuti dan siapkan surat tugas peserta..." required></textarea>
+        </div>
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="form-label fw-semibold">Batas Waktu</label>
+            <input type="date" id="dispBatasWaktu" class="form-control form-control-sm" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">Status</label>
+            <select id="dispStatus" class="form-select form-select-sm">
+              <option value="Belum diproses">Belum diproses</option>
+              <option value="Dalam proses">Dalam proses</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-gold btn-sm">Kirim Disposisi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== MODAL UPLOAD ARSIP MANUAL ==================== -->
+<div class="modal fade" id="modalUploadArsip" tabindex="-1">
+  <div class="modal-dialog">
+    <form class="modal-content" onsubmit="submitUploadArsip(event)">
+      <div class="modal-header bg-dark text-white">
+        <h6 class="modal-title">Unggah Dokumen ke Arsip Digital</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small">
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Kelompok Arsip</label>
+          <select id="arsKelompok" class="form-select form-select-sm">
+            <option value="Surat Keputusan">Arsip Surat Keputusan (SK)</option>
+            <option value="Surat Tugas">Arsip Surat Tugas</option>
+            <option value="Surat Keterangan">Arsip Surat Keterangan</option>
+            <option value="Dokumen Sekolah">Arsip Dokumen Sekolah</option>
+            <option value="Surat Masuk">Arsip Surat Masuk</option>
+            <option value="Surat Keluar">Arsip Surat Keluar</option>
+          </select>
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="form-label fw-semibold">Tahun</label>
+            <input type="number" id="arsTahun" class="form-control form-control-sm" value="2026" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">Tanggal Dokumen</label>
+            <input type="date" id="arsTanggal" class="form-control form-control-sm" required>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Nomor Dokumen</label>
+          <input type="text" id="arsNomor" class="form-control form-control-sm" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Judul / Perihal Dokumen</label>
+          <input type="text" id="arsJudul" class="form-control form-control-sm" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Hak Akses Arsip</label>
+          <select id="arsAkses" class="form-select form-select-sm">
+            <option value="Semua Pengguna">Semua Pengguna (Terbuka Internal)</option>
+            <option value="Pimpinan & TU">Hanya Kepala Sekolah & Tata Usaha</option>
+            <option value="Rahasia Pimpinan">Rahasia (Administrator & Kepala Sekolah)</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold">Pilih File (PDF / DOCX / JPG)</label>
+          <input type="file" id="arsFile" class="form-control form-control-sm" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-navy btn-sm">Simpan ke Google Drive</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?!= include('JavaScript'); ?>
+</body>
+</html>
